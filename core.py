@@ -1,9 +1,11 @@
 #   RTS Lab4
 #   IO-71 Fryzyuk
 #   var: n, w_max, N = 12, 2700, 64
+import time
 import math
 import random
 import matplotlib.pyplot as plt
+from numpy import fft as f
 
 
 def signal(the_n, the_upper_n, the_w_max):
@@ -78,9 +80,47 @@ def fast_furies(the_signal, the_upper_n):
 
 # Graph 1 -----------------
 n, w_max, N = 12, 2700, 64
-sig = signal(n, N, w_max)
-fur = fast_furies(sig, N)
 
-plt.bar([i for i in range(N)], fur)
-plt.title('Lab4')
+signals = []
+number_of_signals = 100000
+
+for i in range(number_of_signals):
+    sig = signal(n, N, w_max)
+    signals.append(sig)
+
+my_fft_time = []
+start = time.time()
+for i in range(number_of_signals):
+    fur = fast_furies(signals[i], N)
+    if i % 10 == 0:
+        my_fft_time.append(time.time() - start)
+
+numpy_fft_time = []
+start = time.time()
+for i in range(number_of_signals):
+    numpy_fur = f.fft(signals[i], N)
+    if i % 10 == 0:
+        numpy_fft_time.append(time.time() - start)
+
+# Graphs comparison
+
+fur = fast_furies(signals[0], N)
+ax1 = plt.subplot(221)
+ax1.set_title('my fft')
+ax1.bar([i for i in range(N)], fur)
+
+numpy_fur = f.fft(signals[0], N)
+ax2 = plt.subplot(222)
+ax2.set_title('numpy fft')
+ax2.bar([i for i in range(N)], numpy_fur.real)
+
+# Time comparison
+
+ax3 = plt.subplot(224)
+ax3.plot([i for i in range(0, number_of_signals, 10)], my_fft_time)
+
+ax4 = plt.subplot(223)
+ax4.plot([i for i in range(0, number_of_signals, 10)], numpy_fft_time)
+
+
 plt.show()
